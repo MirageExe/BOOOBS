@@ -112,11 +112,11 @@
   supervisors: job-supervisors-centcom
   canBeAntag: false
   guides:
-  # Orion-Edit-Start
-  - SpaceLaw
-  - SOP
-  - SOP-Alerts
-  # Orion-Edit-End
+  # Amour-Edit-Start
+  # - SpaceLaw # Disabled until guide is created
+  # - SOP # Disabled until guide is created
+  # - SOP-Alerts # Disabled until guide is created
+  # Amour-Edit-End
   goobcoins: 40
   access:
   - Security

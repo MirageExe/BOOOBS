@@ -77,7 +77,9 @@
   icon: "JobIconLawyer"
   supervisors: job-supervisors-hop
   guides: # goobstation
-  - SpaceLaw
+  # Amour-Edit-Start
+  # - SpaceLaw # Disabled until guide is created
+  # Amour-Edit-End
 #  - LegalSOP # Orion-Edit: Removed because dont have this SOP
   goobcoins: 10 #Goob content
   access:
