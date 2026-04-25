@@ -251,7 +251,7 @@ namespace Content.Client.Options.UI.Tabs
             AddButton(ContentKeyFunctions.Drop);
             AddButton(ContentKeyFunctions.ExamineEntity);
             AddButton(ContentKeyFunctions.SwapHands);
-            AddButton(ContentKeyFunctions.OfferItem);
+            AddButton(ContentKeyFunctions.OfferItem); // Amour port from WWDP
             AddButton(ContentKeyFunctions.ResistGrab);
             AddButton(ContentKeyFunctions.SwapHandsReverse);
             AddButton(ContentKeyFunctions.MoveStoredItem);

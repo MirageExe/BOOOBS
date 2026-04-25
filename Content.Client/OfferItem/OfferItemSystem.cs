@@ -5,6 +5,7 @@ using Robust.Client.Input;
 using Robust.Client.Player;
 using Robust.Shared.Configuration;
 
+// Amour port from WWDP
 namespace Content.Client.OfferItem;
 
 public sealed class OfferItemSystem : SharedOfferItemSystem

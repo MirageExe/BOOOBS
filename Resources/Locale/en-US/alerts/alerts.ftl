@@ -66,6 +66,7 @@ alerts-ensnared-desc = You're [color=yellow]ensnared[/color] and is impairing yo
 alerts-buckled-name = [color=yellow]Buckled[/color]
 alerts-buckled-desc = You've been [color=yellow]buckled[/color] to something. Click the alert to unbuckle unless you're [color=yellow]handcuffed.[/color]
 
+# Amour port from WWDP
 alerts-offer-name = Offer
 alerts-offer-desc = Someone is offering you an item. Click to accept it.
 

@@ -3,6 +3,7 @@ using Content.Shared.Hands.Components;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.OfferItem;
 
+// Amour port from WWDP
 namespace Content.Server.OfferItem;
 
 public sealed class OfferItemSystem : SharedOfferItemSystem

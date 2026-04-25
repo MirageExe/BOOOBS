@@ -407,7 +407,7 @@ binds:
   type: State
   key: V
   mod1: Shift
-- function: OfferItem
+- function: OfferItem # Amour port from WWDP
   type: State
   key: F
 - function: ShowDebugConsole

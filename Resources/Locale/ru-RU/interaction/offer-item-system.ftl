@@ -1,3 +1,4 @@
+# Amour port from WWDP
 offer-item-empty-hand = У тебя в руках нет ничего, что ты мог бы отдать!
 offer-item-full-hand = Ваша рука занята
 offer-item-try-give = Вы предлагаете {$item} {$target}

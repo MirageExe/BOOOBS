@@ -6,6 +6,7 @@ using Robust.Client.UserInterface;
 using Robust.Shared.Enums;
 using Robust.Shared.Utility;
 
+// Amour port from WWDP
 namespace Content.Client.OfferItem;
 
 public sealed class OfferItemIndicatorsOverlay : Overlay

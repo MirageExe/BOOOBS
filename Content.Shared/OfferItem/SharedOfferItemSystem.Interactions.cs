@@ -4,6 +4,7 @@ using Content.Shared.Input;
 using Robust.Shared.Input.Binding;
 using Robust.Shared.Player;
 
+// Amour port from WWDP
 namespace Content.Shared.OfferItem;
 
 public abstract partial class SharedOfferItemSystem
