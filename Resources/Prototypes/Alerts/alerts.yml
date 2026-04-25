@@ -324,6 +324,15 @@
   description: alerts-buckled-desc
 
 - type: alert
+  id: Offer
+  clickEvent: !type:AcceptOfferAlertEvent
+  icons:
+  - sprite: /Textures/Interface/Alerts/offer_item.rsi
+    state: offer_item
+  name: alerts-offer-name
+  description: alerts-offer-desc
+
+- type: alert
   id: HumanCrit
   category: Health
   icons:
