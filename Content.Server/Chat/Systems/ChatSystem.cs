@@ -119,6 +119,7 @@ using Content.Server._EinsteinEngines.Language;
 using Content.Server._Goobstation.Wizard.Systems;
 using Content.Server._Orion.ServerProtection.Chat;
 using Content.Server._Orion.ServerProtection.Emoting;
+using Content.Server._Server.SaySpam;
 using Content.Server.Administration.Logs;
 using Content.Server.Administration.Managers;
 using Content.Server.Chat.Managers;
@@ -191,6 +192,7 @@ public sealed partial class ChatSystem : SharedChatSystem
     [Dependency] private readonly LanguageSystem _language = default!; // Einstein Engines - Language
     [Dependency] private readonly ChatProtectionSystem _chatProtection = default!; // Orion
     [Dependency] private readonly EmoteProtectionSystem _emoteProtection = default!; // Orion
+    [Dependency] private readonly SaySpamTrackerSystem _saySpamTracker = default!;
 
     public const int VoiceRange = 10; // how far voice goes in world units
     public const int WhisperClearRange = 2; // how far whisper goes while still being understandable, in world units
@@ -345,6 +347,9 @@ public sealed partial class ChatSystem : SharedChatSystem
             _collectiveMind.UpdateCollectiveMind(source, collective);
 
         if (player != null && _chatManager.HandleRateLimit(player) != RateLimitStatus.Allowed)
+            return;
+
+        if (player != null && _saySpamTracker.CheckMessage(player, source))
             return;
 
         // Orion-Start
