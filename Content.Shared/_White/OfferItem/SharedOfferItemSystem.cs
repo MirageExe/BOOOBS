@@ -17,7 +17,6 @@ public abstract partial class SharedOfferItemSystem : EntitySystem
     {
         SubscribeLocalEvent<OfferItemComponent, InteractUsingEvent>(SetInReceiveMode);
         SubscribeLocalEvent<OfferItemComponent, AcceptOfferAlertEvent>(OnAcceptOfferAlert);
-
         InitializeInteractions();
     }
 
@@ -49,9 +48,19 @@ public abstract partial class SharedOfferItemSystem : EntitySystem
         if (!TryComp<OfferItemComponent>(args.User, out var offerItem))
             return;
 
-        if (args.User == uid || component.IsInReceiveMode || !offerItem.IsInOfferMode ||
-            (offerItem.IsInReceiveMode && offerItem.Target != uid))
+        if (args.User == uid)
             return;
+
+        if (!offerItem.IsInOfferMode)
+            return;
+
+        if (component.IsInReceiveMode)
+            return;
+
+        if (offerItem.Target != null && offerItem.Target != uid)
+            return;
+
+        args.Handled = true;
 
         component.IsInReceiveMode = true;
         component.Target = args.User;
@@ -64,21 +73,26 @@ public abstract partial class SharedOfferItemSystem : EntitySystem
         if (offerItem.Item == null)
             return;
 
-        _popup.PopupEntity(Loc.GetString("offer-item-try-give",
-            ("item", Identity.Entity(offerItem.Item.Value, EntityManager)),
-            ("target", Identity.Entity(uid, EntityManager))), component.Target.Value, component.Target.Value);
-        _popup.PopupEntity(Loc.GetString("offer-item-try-give-target",
-            ("user", Identity.Entity(component.Target.Value, EntityManager)),
-            ("item", Identity.Entity(offerItem.Item.Value, EntityManager))), component.Target.Value, uid);
+        _popup.PopupEntity(
+            Loc.GetString("offer-item-try-give",
+                ("item", Identity.Entity(offerItem.Item.Value, EntityManager)),
+                ("target", Identity.Entity(uid, EntityManager))),
+            args.User,
+            args.User);
 
-        args.Handled = true;
+        _popup.PopupEntity(
+            Loc.GetString("offer-item-try-give-target",
+                ("user", Identity.Entity(args.User, EntityManager)),
+                ("item", Identity.Entity(offerItem.Item.Value, EntityManager))),
+            args.User,
+            uid);
     }
 
     private void OnAcceptOfferAlert(EntityUid uid, OfferItemComponent component, AcceptOfferAlertEvent args)
     {
-        if (!TryComp<OfferItemComponent>(component.Target, out var offerItem)
-            || !TryComp<HandsComponent>(uid, out var hands)
-            || offerItem.Hand == null)
+        if (!TryComp<OfferItemComponent>(component.Target, out var offerItem) ||
+            !TryComp<HandsComponent>(uid, out var hands) ||
+            offerItem.Hand == null)
             return;
 
         if (offerItem.Item != null)
@@ -90,16 +104,14 @@ public abstract partial class SharedOfferItemSystem : EntitySystem
             }
 
             _popup.PopupClient(
-                Loc.GetString(
-                    "offer-item-give",
+                Loc.GetString("offer-item-give",
                     ("item", Identity.Entity(offerItem.Item.Value, EntityManager)),
                     ("target", Identity.Entity(uid, EntityManager))),
                 component.Target.Value,
                 component.Target.Value);
 
             _popup.PopupEntity(
-                Loc.GetString(
-                    "offer-item-give-other",
+                Loc.GetString("offer-item-give-other",
                     ("user", Identity.Entity(component.Target.Value, EntityManager)),
                     ("item", Identity.Entity(offerItem.Item.Value, EntityManager)),
                     ("target", Identity.Entity(uid, EntityManager))),
@@ -114,42 +126,76 @@ public abstract partial class SharedOfferItemSystem : EntitySystem
 
     protected void UnOffer(EntityUid uid, OfferItemComponent component)
     {
-        if (!TryComp(component.Target, out OfferItemComponent? offerItem) || component.Target == null)
-            goto ResetSelf;
-
-        if (component.Item != null)
+        // Early exit if no target or target component doesn't exist
+        if (component.Target == null || !TryComp(component.Target, out OfferItemComponent? offerItem))
         {
-            _popup.PopupEntity(Loc.GetString("offer-item-no-give",
-                ("item", Identity.Entity(component.Item.Value, EntityManager)),
-                ("target", Identity.Entity(component.Target.Value, EntityManager))), uid, uid);
-            _popup.PopupEntity(Loc.GetString("offer-item-no-give-target",
-                ("user", Identity.Entity(uid, EntityManager)),
-                ("item", Identity.Entity(component.Item.Value, EntityManager))), uid, component.Target.Value);
-        }
-        else if (offerItem.Item != null)
-        {
-            _popup.PopupEntity(Loc.GetString("offer-item-no-give",
-                ("item", Identity.Entity(offerItem.Item.Value, EntityManager)),
-                ("target", Identity.Entity(uid, EntityManager))), component.Target.Value, component.Target.Value);
-            _popup.PopupEntity(Loc.GetString("offer-item-no-give-target",
-                ("user", Identity.Entity(component.Target.Value, EntityManager)),
-                ("item", Identity.Entity(offerItem.Item.Value, EntityManager))), component.Target.Value, uid);
+            // Just reset self without popups
+            component.IsInOfferMode = false;
+            component.IsInReceiveMode = false;
+            component.Hand = null;
+            component.Target = null;
+            component.Item = null;
+            Dirty(uid, component);
+            return;
         }
 
+        // Cache target before resetting to avoid issues with repeated calls
+        var targetUid = component.Target.Value;
+        var item = component.Item ?? offerItem.Item;
+
+        // Reset states FIRST to prevent duplicate calls from Update loop
         offerItem.IsInOfferMode = false;
         offerItem.IsInReceiveMode = false;
         offerItem.Hand = null;
         offerItem.Target = null;
         offerItem.Item = null;
-        Dirty(component.Target.Value, offerItem);
+        Dirty(targetUid, offerItem);
 
-ResetSelf:
         component.IsInOfferMode = false;
         component.IsInReceiveMode = false;
         component.Hand = null;
         component.Target = null;
         component.Item = null;
         Dirty(uid, component);
+
+        // Show popups AFTER resetting state
+        if (item != null)
+        {
+            if (component.Item != null)
+            {
+                // This entity was offering the item
+                _popup.PopupEntity(
+                    Loc.GetString("offer-item-no-give",
+                        ("item", Identity.Entity(item.Value, EntityManager)),
+                        ("target", Identity.Entity(targetUid, EntityManager))),
+                    uid,
+                    uid);
+
+                _popup.PopupEntity(
+                    Loc.GetString("offer-item-no-give-target",
+                        ("user", Identity.Entity(uid, EntityManager)),
+                        ("item", Identity.Entity(item.Value, EntityManager))),
+                    uid,
+                    targetUid);
+            }
+            else
+            {
+                // The target was offering the item
+                _popup.PopupEntity(
+                    Loc.GetString("offer-item-no-give",
+                        ("item", Identity.Entity(item.Value, EntityManager)),
+                        ("target", Identity.Entity(uid, EntityManager))),
+                    targetUid,
+                    targetUid);
+
+                _popup.PopupEntity(
+                    Loc.GetString("offer-item-no-give-target",
+                        ("user", Identity.Entity(targetUid, EntityManager)),
+                        ("item", Identity.Entity(item.Value, EntityManager))),
+                    targetUid,
+                    uid);
+            }
+        }
     }
 
     protected void UnReceive(EntityUid uid, OfferItemComponent? component = null, OfferItemComponent? offerItem = null)
@@ -163,15 +209,14 @@ ResetSelf:
         if (component.Target == null)
             return;
 
-        if (offerItem.Item != null)
-        {
-            _popup.PopupEntity(Loc.GetString("offer-item-no-give",
-                ("item", Identity.Entity(offerItem.Item.Value, EntityManager)),
-                ("target", Identity.Entity(uid, EntityManager))), component.Target.Value, component.Target.Value);
-            _popup.PopupEntity(Loc.GetString("offer-item-no-give-target",
-                ("user", Identity.Entity(component.Target.Value, EntityManager)),
-                ("item", Identity.Entity(offerItem.Item.Value, EntityManager))), component.Target.Value, uid);
-        }
+        var targetUid = component.Target.Value;
+        var item = offerItem.Item;
+
+        // Reset states FIRST to prevent duplicate calls
+        offerItem.Item = null;
+        offerItem.Hand = null;
+        offerItem.IsInOfferMode = false;
+        component.IsInReceiveMode = false;
 
         if (!offerItem.IsInReceiveMode)
         {
@@ -179,11 +224,26 @@ ResetSelf:
             component.Target = null;
         }
 
-        offerItem.Item = null;
-        offerItem.Hand = null;
-        component.IsInReceiveMode = false;
-
         Dirty(uid, component);
+        Dirty(targetUid, offerItem);
+
+        // Show popups AFTER resetting state
+        if (item != null)
+        {
+            _popup.PopupEntity(
+                Loc.GetString("offer-item-no-give",
+                    ("item", Identity.Entity(item.Value, EntityManager)),
+                    ("target", Identity.Entity(uid, EntityManager))),
+                targetUid,
+                targetUid);
+
+            _popup.PopupEntity(
+                Loc.GetString("offer-item-no-give-target",
+                    ("user", Identity.Entity(targetUid, EntityManager)),
+                    ("item", Identity.Entity(item.Value, EntityManager))),
+                targetUid,
+                uid);
+        }
     }
 
     protected bool IsInOfferMode(EntityUid? entity, OfferItemComponent? component = null)
@@ -191,4 +251,3 @@ ResetSelf:
         return entity != null && Resolve(entity.Value, ref component, false) && component.IsInOfferMode;
     }
 }
-

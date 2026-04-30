@@ -21,18 +21,12 @@ public sealed class OfferItemSystem : SharedOfferItemSystem
                 continue;
 
             if (offerItem.Hand != null &&
-                (!_hands.TryGetHeldItem((uid, hands), offerItem.Hand, out var held) || held == null))
+                (!_hands.TryGetHeldItem((uid, hands), offerItem.Hand, out var held) || held == null || held != offerItem.Item))
             {
                 if (offerItem.Target != null)
-                {
                     UnReceive(offerItem.Target.Value, offerItem: offerItem);
-                    offerItem.IsInOfferMode = false;
-                    Dirty(uid, offerItem);
-                }
                 else
-                {
                     UnOffer(uid, offerItem);
-                }
             }
 
             if (!offerItem.IsInReceiveMode)
@@ -45,4 +39,3 @@ public sealed class OfferItemSystem : SharedOfferItemSystem
         }
     }
 }
-

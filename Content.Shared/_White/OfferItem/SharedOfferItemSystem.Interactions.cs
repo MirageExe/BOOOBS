@@ -3,17 +3,22 @@ using Content.Shared.Hands.Components;
 using Content.Shared.Input;
 using Robust.Shared.Input.Binding;
 using Robust.Shared.Player;
+using Robust.Shared.Timing;
 
 namespace Content.Shared.OfferItem;
 
 public abstract partial class SharedOfferItemSystem
 {
     [Dependency] private readonly ActionBlockerSystem _actionBlocker = default!;
+    [Dependency] private readonly IGameTiming _timing = default!;
+
+    private uint _lastOfferTick;
 
     private void InitializeInteractions()
     {
         CommandBinds.Builder
-            .Bind(ContentKeyFunctions.OfferItem, InputCmdHandler.FromDelegate(SetInOfferMode, handle: false, outsidePrediction: false))
+            .Bind(ContentKeyFunctions.OfferItem,
+                InputCmdHandler.FromDelegate(SetInOfferMode, handle: false, outsidePrediction: false))
             .Register<SharedOfferItemSystem>();
     }
 
@@ -28,9 +33,13 @@ public abstract partial class SharedOfferItemSystem
         if (session is not { } playerSession)
             return;
 
-        if (playerSession.AttachedEntity is not { Valid: true } uid || !Exists(uid) ||
-            !_actionBlocker.CanInteract(uid, null))
+        if (playerSession.AttachedEntity is not { Valid: true } uid || !Exists(uid) || !_actionBlocker.CanInteract(uid, null))
             return;
+
+        var tick = _timing.CurTick.Value;
+        if (_lastOfferTick == tick)
+            return;
+        _lastOfferTick = tick;
 
         if (!TryComp<OfferItemComponent>(uid, out var offerItem))
             return;
@@ -38,11 +47,10 @@ public abstract partial class SharedOfferItemSystem
         if (!TryComp<HandsComponent>(uid, out var hands) || hands.ActiveHandId == null)
             return;
 
-        offerItem.Item = _hands.GetActiveItem((uid, hands));
-
         if (!offerItem.IsInOfferMode)
         {
-            if (offerItem.Item == null)
+            var activeItem = _hands.GetActiveItem((uid, hands));
+            if (activeItem == null)
             {
                 _popup.PopupEntity(Loc.GetString("offer-item-empty-hand"), uid, uid);
                 return;
@@ -50,6 +58,7 @@ public abstract partial class SharedOfferItemSystem
 
             if (offerItem.Hand == null || offerItem.Target == null)
             {
+                offerItem.Item = activeItem;
                 offerItem.IsInOfferMode = true;
                 offerItem.Hand = hands.ActiveHandId;
                 Dirty(uid, offerItem);
@@ -68,4 +77,3 @@ public abstract partial class SharedOfferItemSystem
         UnOffer(uid, offerItem);
     }
 }
-
