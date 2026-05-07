@@ -23,15 +23,6 @@
       ]
     },
     {
-      "name": "light",
-      "delays": [
-        [
-          0.15,
-          0.15
-        ]
-      ]
-    },
-    {
       "name": "inhand-right",
       "directions": 4,
       "delays": [
