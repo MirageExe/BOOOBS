@@ -23,6 +23,9 @@
       ]
     },
     {
+      "name": "light"
+    },
+    {
       "name": "inhand-right",
       "directions": 4,
       "delays": [
