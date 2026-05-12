@@ -178,14 +178,6 @@
 
 
 - type: loadout
-  id: LoadoutBoostyTraumaJacket
-  effects:
-  - !type:BoostyTierLoadoutEffect
-    minTierLevel: 2
-  equipment:
-    outerClothing: ClothingOuterJacketTraumaBoosty
-
-- type: loadout
   id: LoadoutBoostySkates
   effects:
   - !type:BoostyTierLoadoutEffect

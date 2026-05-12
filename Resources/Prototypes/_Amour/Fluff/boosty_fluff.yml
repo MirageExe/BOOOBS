@@ -299,19 +299,6 @@
 
 
 
-# Reider207
-- type: entity
-  parent: ClothingOuterStorageBase
-  id: ClothingOuterJacketTraumaBoosty
-  name: Куртка "Trauma Team"
-  suffix: Boosty
-  description: Высокотехнологичная куртка.
-  components:
-    - type: Sprite
-      sprite: _Amour/Fluff/Boosty/jacket.rsi
-    - type: Clothing
-      sprite: _Amour/Fluff/Boosty/jacket.rsi
-
 - type: entity
   parent: ClothingShoesSkates
   id: ClothingShoesSkatesBoosty

@@ -367,3 +367,16 @@
       sprite: _Amour/Fluff/bandiKOtik/purple_cloak.rsi
     - type: Clothing
       sprite: _Amour/Fluff/bandiKOtik/purple_cloak.rsi
+
+# Zyabr
+- type: entity
+  parent: ClothingOuterStorageBase
+  id: ClothingOuterJacketTraumaZyabr
+  name: Куртка "Trauma Team"
+  suffix: fluff
+  description: Высокотехнологичная куртка.
+  components:
+    - type: Sprite
+      sprite: _Amour/Fluff/Boosty/jacket.rsi
+    - type: Clothing
+      sprite: _Amour/Fluff/Boosty/jacket.rsi

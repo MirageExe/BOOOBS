@@ -304,3 +304,14 @@
     - bandiKOtik
   equipment:
     neck: ClothingBandiKOtikPurpleNeckFluff
+
+# Zyabr
+
+- type: loadout
+  id: LoadoutPersonalZyabrTraumaJacket
+  effects:
+  - !type:UserNameLoadoutEffect
+    allowedUsers:
+    - Zyabr
+  equipment:
+    outerClothing: ClothingOuterJacketTraumaZyabr
