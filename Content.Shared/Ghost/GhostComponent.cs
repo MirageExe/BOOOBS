@@ -95,7 +95,7 @@ public sealed partial class GhostComponent : Component
 
     // Orion-Start
     [DataField, AutoNetworkedField]
-    public bool CanGhostOpenUI = true;
+    public bool CanGhostOpenUI = false;
     // Orion-End
 
     /// <summary>
